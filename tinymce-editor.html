@@ -30,18 +30,14 @@
         .header-content {
             display: grid;
             grid-template-columns: 1fr auto;
-            grid-template-rows: auto auto;
-            gap: 16px;
-            position: relative;
-            min-height: 60px;
+            grid-template-rows: auto;
+            gap: 24px;
+            align-items: center;
         }
         .title-section {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            grid-column: 1;
-            grid-row: 1;
-            align-self: start;
         }
         .main-title {
             color: #1678F2;
@@ -58,18 +54,10 @@
             font-weight: 500;
             letter-spacing: 0.01em;
         }
-        .form-fields {
+        .form-section-complete {
             display: flex;
             align-items: flex-end;
             gap: 16px;
-            grid-column: 2;
-            grid-row: 1;
-            align-self: start;
-        }
-        .submit-section {
-            position: absolute;
-            bottom: 0;
-            right: 0;
         }
         .send-button {
             background: linear-gradient(135deg, #10B981 0%, #059669 100%);
@@ -83,8 +71,6 @@
             white-space: nowrap;
             box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
             transition: all 0.2s ease;
-            height: 44px;
-            align-self: flex-end;
         }
         .send-button:hover {
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
@@ -184,7 +170,7 @@
                     <h1 class="main-title">Noodle Concierge Document Editor</h1>
                     <p class="tagline">Quick Document Editing</p>
                 </div>
-                <div class="form-fields">
+                <div class="form-section-complete">
                     <div class="field-container">
                         <label class="field-label">Your Name</label>
                         <input type="text" name="client_name" id="clientName" required class="field-input">
@@ -195,17 +181,15 @@
                         <input type="email" name="client_email" id="clientEmail" required class="field-input">
                         <div class="error-message" id="emailError"></div>
                     </div>
-                </div>
-                <form id="documentForm" action="https://formspree.io/f/movlvgpa" method="POST">
-                    <input type="hidden" name="html_content" id="htmlContent">
-                    <input type="hidden" name="client_name" id="hiddenClientName">
-                    <input type="hidden" name="client_email" id="hiddenClientEmail">
-                    <div class="submit-section">
+                    <form id="documentForm" action="https://formspree.io/f/movlvgpa" method="POST" style="display: contents;">
+                        <input type="hidden" name="html_content" id="htmlContent">
+                        <input type="hidden" name="client_name" id="hiddenClientName">
+                        <input type="hidden" name="client_email" id="hiddenClientEmail">
                         <button type="submit" class="send-button" id="submitButton">
                             Send to Fahd
                         </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
             <div class="draft-status" id="draftStatus">
                 Auto-saved locally
