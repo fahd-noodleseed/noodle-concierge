@@ -20,50 +20,61 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .control-panel {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 15px;
-            font-size: 13px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .control-panel h2 {
-            color: #1678F2;
-            margin: 0 0 8px 0;
-            font-size: 16px;
-        }
-        .control-row {
+        .header-content {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            justify-content: space-between;
+            gap: 24px;
         }
-        .control-row:last-child {
-            margin-bottom: 0;
+        .title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        .instructions {
-            flex: 1;
-            margin-right: 15px;
-        }
-        .instructions ul {
+        .main-title {
+            color: #1678F2;
             margin: 0;
-            padding-left: 18px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
         }
-        .instructions li {
-            margin-bottom: 3px;
+        .tagline {
+            color: #64748b;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+        .form-section {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
         }
         .send-button {
-            background: #10B981;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 600;
             white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+            transition: all 0.2s ease;
         }
         .send-button:hover {
-            background: #0d9968;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+            transform: translateY(-1px);
         }
         .save-indicator {
             position: fixed;
@@ -77,20 +88,73 @@
             font-size: 12px;
         }
         .draft-status {
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 4px;
-            font-style: italic;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+            font-weight: 500;
+            text-align: center;
         }
         .draft-restored {
-            background: #dbeafe;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border: 1px solid #3b82f6;
             color: #1e40af;
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-size: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 500;
             display: none;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+        .field-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .field-label {
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .field-input {
+            padding: 10px 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            transition: all 0.2s ease;
+            width: 140px;
+        }
+        .field-input:focus {
+            outline: none;
+            border-color: #1678F2;
+            box-shadow: 0 0 0 3px rgba(22, 120, 242, 0.1);
+        }
+        .field-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+        .field-valid {
+            border-color: #10B981 !important;
+            background-color: #f0fdf4;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 2px;
+            min-height: 14px;
+        }
+        .submit-disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
         }
     </style>
 </head>
@@ -100,34 +164,30 @@
             Draft restored from previous session
         </div>
         <div class="control-panel">
-            <h2>Noodle Concierge Document Editor</h2>
-            <div class="control-row">
-                <div class="instructions">
-                    <strong>Instructions:</strong>
-                    <ul>
-                        <li>Edit text directly in the document below</li>
-                        <li>Use the toolbar for formatting (bold, colors, etc.)</li>
-                        <li>Your changes are automatically saved every 30 seconds</li>
-                        <li>Fill in your details and click Submit when finished editing</li>
-                    </ul>
+            <div class="header-content">
+                <div class="title-section">
+                    <h1 class="main-title">Noodle Concierge Document Editor</h1>
+                    <p class="tagline">Professional Document Collaboration</p>
                 </div>
-                <form id="documentForm" action="https://formspree.io/f/movlvgpa" method="POST" style="display: flex; gap: 8px; align-items: flex-end;">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label style="font-size: 11px; font-weight: 500;">Your Name:</label>
-                        <input type="text" name="client_name" required style="padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; width: 120px;">
+                <form id="documentForm" action="https://formspree.io/f/movlvgpa" method="POST" class="form-section">
+                    <div class="field-container">
+                        <label class="field-label">Your Name</label>
+                        <input type="text" name="client_name" id="clientName" required class="field-input">
+                        <div class="error-message" id="nameError"></div>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label style="font-size: 11px; font-weight: 500;">Your Email:</label>
-                        <input type="email" name="client_email" required style="padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; width: 140px;">
+                    <div class="field-container">
+                        <label class="field-label">Email Address</label>
+                        <input type="email" name="client_email" id="clientEmail" required class="field-input">
+                        <div class="error-message" id="emailError"></div>
                     </div>
                     <input type="hidden" name="html_content" id="htmlContent">
-                    <button type="submit" class="send-button">
-                        Submit Document
+                    <button type="submit" class="send-button" id="submitButton">
+                        Send to Fahd
                     </button>
                 </form>
             </div>
             <div class="draft-status" id="draftStatus">
-                Your work is automatically saved locally
+                Auto-saved locally
             </div>
         </div>
 
@@ -149,8 +209,8 @@
                 
                 const draftData = {
                     content: tinymce.get('editor').getContent(),
-                    clientName: document.querySelector('input[name="client_name"]').value,
-                    clientEmail: document.querySelector('input[name="client_email"]').value,
+                    clientName: document.getElementById('clientName').value,
+                    clientEmail: document.getElementById('clientEmail').value,
                     savedAt: new Date().toISOString(),
                     version: '1.0'
                 };
@@ -216,10 +276,10 @@
                 
                 // Restore form fields
                 if (draft.clientName) {
-                    document.querySelector('input[name="client_name"]').value = draft.clientName;
+                    document.getElementById('clientName').value = draft.clientName;
                 }
                 if (draft.clientEmail) {
-                    document.querySelector('input[name="client_email"]').value = draft.clientEmail;
+                    document.getElementById('clientEmail').value = draft.clientEmail;
                 }
                 
                 // Update status with timestamp
@@ -229,6 +289,121 @@
                 return draft.content;
             }
             return null;
+        }
+        
+        // Form validation functions
+        function validateName(name) {
+            const trimmedName = name.trim();
+            
+            if (!trimmedName) {
+                return { isValid: false, message: 'Please enter your name' };
+            }
+            
+            if (trimmedName.length < 2) {
+                return { isValid: false, message: 'Name must be at least 2 characters' };
+            }
+            
+            if (trimmedName.length > 50) {
+                return { isValid: false, message: 'Name must be less than 50 characters' };
+            }
+            
+            // Allow letters, spaces, hyphens, apostrophes, and common accented characters
+            const namePattern = /^[a-zA-ZÀ-ÿ\s\-'\.]+$/;
+            if (!namePattern.test(trimmedName)) {
+                return { isValid: false, message: 'Name can only contain letters, spaces, hyphens, and apostrophes' };
+            }
+            
+            return { isValid: true, message: '' };
+        }
+        
+        function validateEmail(email) {
+            const trimmedEmail = email.trim().toLowerCase();
+            
+            if (!trimmedEmail) {
+                return { isValid: false, message: 'Please enter your email address' };
+            }
+            
+            if (trimmedEmail.length > 100) {
+                return { isValid: false, message: 'Email must be less than 100 characters' };
+            }
+            
+            // Comprehensive email validation pattern
+            const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+            
+            if (!emailPattern.test(trimmedEmail)) {
+                return { isValid: false, message: 'Please enter a valid email address' };
+            }
+            
+            // Additional checks for common mistakes
+            if (trimmedEmail.includes('..') || trimmedEmail.startsWith('.') || trimmedEmail.endsWith('.')) {
+                return { isValid: false, message: 'Please enter a valid email address' };
+            }
+            
+            return { isValid: true, message: '' };
+        }
+        
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId === 'clientName' ? 'nameError' : 'emailError');
+            
+            field.classList.remove('field-valid');
+            field.classList.add('field-error');
+            errorElement.textContent = message;
+        }
+        
+        function showFieldValid(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId === 'clientName' ? 'nameError' : 'emailError');
+            
+            field.classList.remove('field-error');
+            field.classList.add('field-valid');
+            errorElement.textContent = '';
+        }
+        
+        function clearFieldValidation(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId === 'clientName' ? 'nameError' : 'emailError');
+            
+            field.classList.remove('field-error', 'field-valid');
+            errorElement.textContent = '';
+        }
+        
+        function validateForm() {
+            const nameField = document.getElementById('clientName');
+            const emailField = document.getElementById('clientEmail');
+            
+            const nameValidation = validateName(nameField.value);
+            const emailValidation = validateEmail(emailField.value);
+            
+            // Update visual feedback
+            if (nameValidation.isValid) {
+                showFieldValid('clientName');
+            } else {
+                showFieldError('clientName', nameValidation.message);
+            }
+            
+            if (emailValidation.isValid) {
+                showFieldValid('clientEmail');
+            } else {
+                showFieldError('clientEmail', emailValidation.message);
+            }
+            
+            const isFormValid = nameValidation.isValid && emailValidation.isValid;
+            updateSubmitButton(isFormValid);
+            
+            return isFormValid;
+        }
+        
+        function updateSubmitButton(isValid) {
+            const submitButton = document.getElementById('submitButton');
+            
+            if (isValid) {
+                submitButton.classList.remove('submit-disabled');
+                submitButton.disabled = false;
+            } else {
+                submitButton.classList.add('submit-disabled');
+                submitButton.disabled = true;
+            }
         }
 
         tinymce.init({
@@ -442,17 +617,87 @@
         
         // Handle form submission
         document.addEventListener('DOMContentLoaded', function() {
-            // Add form field auto-save listeners
-            const nameField = document.querySelector('input[name="client_name"]');
-            const emailField = document.querySelector('input[name="client_email"]');
+            // Get form field references
+            const nameField = document.getElementById('clientName');
+            const emailField = document.getElementById('clientEmail');
             
-            nameField.addEventListener('blur', debouncedAutoSave);
-            nameField.addEventListener('input', debouncedAutoSave);
-            emailField.addEventListener('blur', debouncedAutoSave);
-            emailField.addEventListener('input', debouncedAutoSave);
+            // Initialize submit button state (disabled until valid)
+            updateSubmitButton(false);
+            
+            // Add real-time validation listeners
+            nameField.addEventListener('input', function() {
+                const validation = validateName(this.value);
+                if (validation.isValid) {
+                    showFieldValid('clientName');
+                } else if (this.value.trim()) { // Only show errors if they've typed something
+                    showFieldError('clientName', validation.message);
+                } else {
+                    clearFieldValidation('clientName');
+                }
+                validateForm();
+                debouncedAutoSave();
+            });
+            
+            nameField.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    const validation = validateName(this.value);
+                    if (validation.isValid) {
+                        showFieldValid('clientName');
+                    } else {
+                        showFieldError('clientName', validation.message);
+                    }
+                    validateForm();
+                }
+            });
+            
+            emailField.addEventListener('input', function() {
+                const validation = validateEmail(this.value);
+                if (validation.isValid) {
+                    showFieldValid('clientEmail');
+                } else if (this.value.trim()) { // Only show errors if they've typed something
+                    showFieldError('clientEmail', validation.message);
+                } else {
+                    clearFieldValidation('clientEmail');
+                }
+                validateForm();
+                debouncedAutoSave();
+            });
+            
+            emailField.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    const validation = validateEmail(this.value);
+                    if (validation.isValid) {
+                        showFieldValid('clientEmail');
+                    } else {
+                        showFieldError('clientEmail', validation.message);
+                    }
+                    validateForm();
+                }
+            });
+            
+            // Validate form after restore (if fields are populated)
+            setTimeout(() => {
+                if (nameField.value.trim() || emailField.value.trim()) {
+                    validateForm();
+                }
+            }, 500);
             
             document.getElementById('documentForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Validate form before submission
+                if (!validateForm()) {
+                    // Focus on first invalid field
+                    const nameField = document.getElementById('clientName');
+                    const emailField = document.getElementById('clientEmail');
+                    
+                    if (!validateName(nameField.value).isValid) {
+                        nameField.focus();
+                    } else if (!validateEmail(emailField.value).isValid) {
+                        emailField.focus();
+                    }
+                    return; // Stop submission if validation fails
+                }
                 
                 // Get the current document content from TinyMCE
                 const content = tinymce.get('editor').getContent();
