@@ -8,6 +8,7 @@ Your document is ready for editing! Here's how to access and use the editor:
 1. Open the provided link in your web browser (Chrome, Safari, or Edge work best)
 2. You'll see the **Noodle Concierge Document Editor** page with a compact control panel at the top
 3. Your document is already loaded with all formatting preserved in the main editing area
+4. If you've edited before, you'll see a "Draft restored from previous session" message
 
 ---
 
@@ -39,17 +40,20 @@ Your document is ready for editing! Here's how to access and use the editor:
 ## Saving Your Work
 
 ### **Automatic Saving**
-- Your changes are **automatically saved** every 30 seconds
-- You'll see a green "Document saved" notification
+- Your changes are **automatically saved locally** in your browser every few seconds
+- Your name and email are also saved as you type them
+- You'll see a "Document saved automatically" notification briefly
+- **Your work persists** even if you close the browser or refresh the page
 - No need to manually save while editing
 
-### **Sending Your Document**
+### **Submitting Your Document**
 When you're finished editing:
 
-1. **Click "Send Edited Document to Fahd"** button in the control panel at the top
-2. Your email app will open with a **pre-filled message**
-3. Just click **"Send"** in your email app - everything is ready!
-4. If email doesn't open automatically, you'll see contact information to email manually
+1. **Fill in your name and email** in the form at the top of the page
+2. **Click "Submit Document"** button
+3. You'll see a **confirmation message** when your document is successfully sent
+4. Fahd will receive your edited document automatically - no email setup needed!
+5. **Your local draft is automatically cleared** after successful submission
 
 ---
 
@@ -90,9 +94,10 @@ When you're finished editing:
 - Colors display in the final exported document
 - Use the color tools in the toolbar to change colors
 
-**"Email button isn't working"**
-- Make sure you have an email app set up (like Mail, Outlook, or Gmail)
-- If no email opens, you'll see a popup with contact information
+**"Submit button isn't working"**
+- Make sure you've filled in both your name and email address
+- Check that you have a stable internet connection
+- If submission fails, you'll see contact information to reach Fahd directly
 - You can also email directly to: fahd@noodleseed.com
 
 ---
@@ -109,10 +114,31 @@ If you have any questions or issues:
 ## Quick Tips for Best Results
 
 1. **Edit gradually** - Make small changes and check the preview
-2. **Use automatic saving** - Your work saves every 30 seconds  
+2. **Take breaks safely** - Your work is automatically saved, so you can close and return anytime
 3. **Keep the structure** - Edit text content rather than deleting entire sections
-4. **Test the email button** - Make sure you can send when finished
-5. **Contact for help** - Email fahd@noodleseed.com with any questions
+4. **Fill in your contact info** - Name and email required for submission
+5. **Multiple sessions** - Feel free to work on the document over several sessions
+6. **Contact for help** - Email fahd@noodleseed.com with any questions
+
+---
+
+## Local Draft Saving
+
+### **How It Works**
+- All your changes are automatically saved to your browser's local storage
+- Your work persists through browser refreshes, closures, and computer restarts
+- Data is stored only on your device - nothing is sent until you submit
+
+### **What Gets Saved**
+- Document content and all formatting
+- Your name and email address
+- Timestamp of when you last made changes
+
+### **Privacy & Security**
+- Your draft is saved only on your local device
+- No data is sent to any server until you click "Submit Document"
+- Your local draft is automatically deleted after successful submission
+- Only you can access your saved work on your device
 
 ---
 

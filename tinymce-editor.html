@@ -76,10 +76,29 @@
             display: none;
             font-size: 12px;
         }
+        .draft-status {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        .draft-restored {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="editor-container">
+        <div class="draft-restored" id="draftRestored">
+            Draft restored from previous session
+        </div>
         <div class="control-panel">
             <h2>Noodle Concierge Document Editor</h2>
             <div class="control-row">
@@ -89,12 +108,26 @@
                         <li>Edit text directly in the document below</li>
                         <li>Use the toolbar for formatting (bold, colors, etc.)</li>
                         <li>Your changes are automatically saved every 30 seconds</li>
-                        <li>Click the Send button when finished editing</li>
+                        <li>Fill in your details and click Submit when finished editing</li>
                     </ul>
                 </div>
-                <button onclick="sendToFahd()" class="send-button">
-                    Send Edited Document to Fahd
-                </button>
+                <form id="documentForm" action="https://formspree.io/f/movlvgpa" method="POST" style="display: flex; gap: 8px; align-items: flex-end;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 11px; font-weight: 500;">Your Name:</label>
+                        <input type="text" name="client_name" required style="padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; width: 120px;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 11px; font-weight: 500;">Your Email:</label>
+                        <input type="email" name="client_email" required style="padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; width: 140px;">
+                    </div>
+                    <input type="hidden" name="html_content" id="htmlContent">
+                    <button type="submit" class="send-button">
+                        Submit Document
+                    </button>
+                </form>
+            </div>
+            <div class="draft-status" id="draftStatus">
+                Your work is automatically saved locally
             </div>
         </div>
 
@@ -106,6 +139,98 @@
     </div>
 
     <script>
+        // Draft management functions
+        const DRAFT_KEY = 'noodle-concierge-draft';
+        let autoSaveTimeout;
+        
+        function saveDraft() {
+            try {
+                if (!tinymce.get('editor')) return;
+                
+                const draftData = {
+                    content: tinymce.get('editor').getContent(),
+                    clientName: document.querySelector('input[name="client_name"]').value,
+                    clientEmail: document.querySelector('input[name="client_email"]').value,
+                    savedAt: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+                updateDraftStatus('Draft saved locally');
+            } catch (error) {
+                console.warn('Could not save draft to localStorage:', error);
+            }
+        }
+        
+        function loadDraft() {
+            try {
+                const draftJson = localStorage.getItem(DRAFT_KEY);
+                if (!draftJson) return null;
+                
+                return JSON.parse(draftJson);
+            } catch (error) {
+                console.warn('Could not load draft from localStorage:', error);
+                clearDraft(); // Clear corrupted data
+                return null;
+            }
+        }
+        
+        function clearDraft() {
+            try {
+                localStorage.removeItem(DRAFT_KEY);
+                updateDraftStatus('Your work is automatically saved locally');
+            } catch (error) {
+                console.warn('Could not clear draft:', error);
+            }
+        }
+        
+        function hasDraft() {
+            try {
+                return localStorage.getItem(DRAFT_KEY) !== null;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        function updateDraftStatus(message) {
+            const statusElement = document.getElementById('draftStatus');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+        }
+        
+        function debouncedAutoSave() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(saveDraft, 3000); // 3 second delay
+        }
+        
+        function restoreDraftIfExists() {
+            const draft = loadDraft();
+            if (draft && draft.content) {
+                // Show restoration notification
+                const restoredNotification = document.getElementById('draftRestored');
+                restoredNotification.style.display = 'block';
+                setTimeout(() => {
+                    restoredNotification.style.display = 'none';
+                }, 5000);
+                
+                // Restore form fields
+                if (draft.clientName) {
+                    document.querySelector('input[name="client_name"]').value = draft.clientName;
+                }
+                if (draft.clientEmail) {
+                    document.querySelector('input[name="client_email"]').value = draft.clientEmail;
+                }
+                
+                // Update status with timestamp
+                const savedDate = new Date(draft.savedAt);
+                updateDraftStatus(`Draft from ${savedDate.toLocaleDateString()} ${savedDate.toLocaleTimeString()}`);
+                
+                return draft.content;
+            }
+            return null;
+        }
+
         tinymce.init({
             selector: '#editor',
             height: 800,
@@ -142,7 +267,9 @@
             setup: function (editor) {
                 // Pre-load your document content
                 editor.on('init', function () {
-                    editor.setContent(`
+                    // Try to restore draft first, otherwise load default content
+                    const draftContent = restoreDraftIfExists();
+                    const contentToLoad = draftContent || `
                         <div class="header" style="margin-bottom: 0.3rem;">
                             <img src="rectangle_logo_and_name.png" alt="Noodle Seed" class="logo-image">
                             <h1 class="hero-title">Noodle Concierge</h1>
@@ -282,17 +409,25 @@
                             <p><strong>Fahd Rafi</strong>, Founder, TheNoodleSeed Corporation • noodleseed.com • fahd@noodleseed.com</p>
                             <p style="font-size: 0.7rem; color: #6b7280; margin-top: 0.2rem; font-style: italic;">California market: typical turnover costs 8-12%+ of annual rent due to landlord-paid broker fees. Our fee: 2% of full lease contract value, charged only for successful renewals (no charge for management interventions).</p>
                         </div>
-                    `);
+                    `;
+                    
+                    editor.setContent(contentToLoad);
                 });
                 
-                // Save indicator
+                // Auto-save on content changes
                 editor.on('change', function() {
                     showSaveIndicator();
+                    debouncedAutoSave();
+                });
+                
+                // Auto-save on typing (with debouncing)
+                editor.on('keyup', function() {
+                    debouncedAutoSave();
                 });
                 
                 // Custom save function
                 editor.addCommand('mceSave', function() {
-                    exportHTML();
+                    saveDraft();
                 });
             }
         });
@@ -305,62 +440,98 @@
             }, 2000);
         }
         
-        function sendToFahd() {
-            const content = tinymce.get('editor').getContent();
-            const today = new Date().toLocaleDateString();
+        // Handle form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form field auto-save listeners
+            const nameField = document.querySelector('input[name="client_name"]');
+            const emailField = document.querySelector('input[name="client_email"]');
             
-            const subject = `Edited Noodle Concierge Document - ${today}`;
-            const emailBody = `Hi Fahd,
-
-I've finished editing the Noodle Concierge document. Here's the updated content:
-
-${content}
-
-Please let me know if you need any changes!
-
-Best regards`;
+            nameField.addEventListener('blur', debouncedAutoSave);
+            nameField.addEventListener('input', debouncedAutoSave);
+            emailField.addEventListener('blur', debouncedAutoSave);
+            emailField.addEventListener('input', debouncedAutoSave);
             
-            // Create mailto link with pre-filled content
-            const mailtoLink = `mailto:fahd@noodleseed.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-            
-            // Try to open email client
-            const emailWindow = window.open(mailtoLink, '_blank');
-            
-            // Show success message and fallback info
-            setTimeout(() => {
-                if (!emailWindow || emailWindow.closed) {
-                    // Email client might not have opened
-                    showEmailFallback(content);
-                } else {
-                    alert('✅ Your email is ready to send! Just click "Send" in your email app.');
-                }
-            }, 1000);
-        }
+            document.getElementById('documentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get the current document content from TinyMCE
+                const content = tinymce.get('editor').getContent();
+                
+                // Set the hidden field with the HTML content
+                document.getElementById('htmlContent').value = content;
+                
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Submitting...';
+                submitButton.disabled = true;
+                
+                // Submit the form
+                fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        clearDraft(); // Clear saved draft on successful submission
+                        showSuccessMessage();
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                }).catch(error => {
+                    showErrorMessage();
+                }).finally(() => {
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                });
+            });
+        });
         
-        function showEmailFallback(content) {
-            const fallbackModal = document.createElement('div');
-            fallbackModal.style.cssText = `
+        function showSuccessMessage() {
+            const successModal = document.createElement('div');
+            successModal.style.cssText = `
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
                 background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
-                align-items: center; justify-content: center; color: white;
+                align-items: center; justify-content: center;
             `;
             
-            fallbackModal.innerHTML = `
-                <div style="background: white; color: black; padding: 30px; border-radius: 10px; max-width: 500px; text-align: center;">
-                    <h2 style="color: #1678F2; margin-bottom: 20px;">📧 Send Your Document</h2>
-                    <p style="margin-bottom: 20px;">Please email your edited document to:</p>
-                    <p style="font-size: 24px; font-weight: bold; color: #10B981; margin-bottom: 20px;">
-                        fahd@noodleseed.com
-                    </p>
-                    <p style="margin-bottom: 20px;">Or call: <strong>(925) 549-9111</strong></p>
+            successModal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 10px; max-width: 400px; text-align: center;">
+                    <h2 style="color: #10B981; margin-bottom: 20px;">Document Submitted Successfully!</h2>
+                    <p style="margin-bottom: 20px;">Your edited document has been sent to Fahd. You should receive a confirmation email shortly.</p>
                     <button onclick="this.parentElement.parentElement.remove()" 
-                            style="background: #1678F2; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">
-                        Got it!
+                            style="background: #10B981; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                        Great!
                     </button>
                 </div>
             `;
             
-            document.body.appendChild(fallbackModal);
+            document.body.appendChild(successModal);
+        }
+        
+        function showErrorMessage() {
+            const errorModal = document.createElement('div');
+            errorModal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+                align-items: center; justify-content: center;
+            `;
+            
+            errorModal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 10px; max-width: 400px; text-align: center;">
+                    <h2 style="color: #ef4444; margin-bottom: 20px;">Submission Failed</h2>
+                    <p style="margin-bottom: 20px;">There was an issue submitting your document. Please try again or contact Fahd directly at:</p>
+                    <p style="font-weight: bold; color: #1678F2; margin-bottom: 20px;">fahd@noodleseed.com</p>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="background: #1678F2; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                        OK
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(errorModal);
         }
     </script>
 </body>
