@@ -84,9 +84,9 @@
         <textarea id="editor"></textarea>
         
         <div class="export-buttons">
-            <button onclick="exportHTML()">📥 Export HTML Document</button>
-            <button onclick="exportText()">📄 Export Text Only</button>
-            <button onclick="previewDocument()">👁️ Preview Document</button>
+            <button onclick="sendToFahd()" style="background: #10B981; font-size: 18px; padding: 15px 30px; border-radius: 8px;">
+                📧 Send Edited Document to Fahd
+            </button>
         </div>
     </div>
 
@@ -294,58 +294,62 @@
             }, 2000);
         }
         
-        function exportHTML() {
+        function sendToFahd() {
             const content = tinymce.get('editor').getContent();
-            const fullHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noodle Concierge: AI-Powered Tenant Lifecycle Management</title>
-    <link rel="stylesheet" href="noodle-styles.css">
-</head>
-<body>
-    ${content}
-</body>
-</html>`;
+            const today = new Date().toLocaleDateString();
             
-            downloadFile('noodle-concierge-updated.html', fullHtml, 'text/html');
-        }
-        
-        function exportText() {
-            const content = tinymce.get('editor').getContent({format: 'text'});
-            downloadFile('noodle-concierge-text.txt', content, 'text/plain');
-        }
-        
-        function previewDocument() {
-            const content = tinymce.get('editor').getContent();
-            const newWindow = window.open('', '_blank');
-            newWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Document Preview</title>
-                    <link rel="stylesheet" href="noodle-styles.css">
-                </head>
-                <body>
-                    ${content}
-                </body>
-                </html>
-            `);
-        }
-        
-        function downloadFile(filename, content, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const subject = `Edited Noodle Concierge Document - ${today}`;
+            const emailBody = `Hi Fahd,
+
+I've finished editing the Noodle Concierge document. Here's the updated content:
+
+${content}
+
+Please let me know if you need any changes!
+
+Best regards`;
             
-            alert(`✅ ${filename} has been downloaded to your computer!`);
+            // Create mailto link with pre-filled content
+            const mailtoLink = `mailto:fahd@noodleseed.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            // Try to open email client
+            const emailWindow = window.open(mailtoLink, '_blank');
+            
+            // Show success message and fallback info
+            setTimeout(() => {
+                if (!emailWindow || emailWindow.closed) {
+                    // Email client might not have opened
+                    showEmailFallback(content);
+                } else {
+                    alert('✅ Your email is ready to send! Just click "Send" in your email app.');
+                }
+            }, 1000);
+        }
+        
+        function showEmailFallback(content) {
+            const fallbackModal = document.createElement('div');
+            fallbackModal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+                align-items: center; justify-content: center; color: white;
+            `;
+            
+            fallbackModal.innerHTML = `
+                <div style="background: white; color: black; padding: 30px; border-radius: 10px; max-width: 500px; text-align: center;">
+                    <h2 style="color: #1678F2; margin-bottom: 20px;">📧 Send Your Document</h2>
+                    <p style="margin-bottom: 20px;">Please email your edited document to:</p>
+                    <p style="font-size: 24px; font-weight: bold; color: #10B981; margin-bottom: 20px;">
+                        fahd@noodleseed.com
+                    </p>
+                    <p style="margin-bottom: 20px;">Or call: <strong>(925) 549-9111</strong></p>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="background: #1678F2; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                        Got it!
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(fallbackModal);
         }
     </script>
 </body>

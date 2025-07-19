@@ -43,13 +43,13 @@ Your document is ready for editing! Here's how to access and use the editor:
 - You'll see a green "Document saved" notification
 - No need to manually save while editing
 
-### **Exporting Your Document**
+### **Sending Your Document**
 When you're finished editing:
 
-1. **Click "Export HTML Document"** button at the bottom
-2. Your updated document will **download automatically**
-3. The file will be named `noodle-concierge-updated.html`
-4. This file contains all your changes with perfect formatting
+1. **Click "📧 Send Edited Document to Fahd"** button at the bottom
+2. Your email app will open with a **pre-filled message**
+3. Just click **"Send"** in your email app - everything is ready!
+4. If email doesn't open automatically, you'll see contact information to email manually
 
 ---
 
@@ -90,9 +90,10 @@ When you're finished editing:
 - Colors display in the final exported document
 - Use the color tools in the toolbar to change colors
 
-**"Export isn't working"**
-- Make sure pop-ups are allowed in your browser
-- Try right-clicking the Export button and "Save link as"
+**"Email button isn't working"**
+- Make sure you have an email app set up (like Mail, Outlook, or Gmail)
+- If no email opens, you'll see a popup with contact information
+- You can also email directly to: fahd@noodleseed.com
 
 ---
 
@@ -107,11 +108,11 @@ If you have any questions or issues:
 
 ## 🎯 Quick Tips for Best Results
 
-1. **Edit gradually** - Make small changes and preview often
-2. **Use the preview button** to see how it looks
-3. **Export frequently** to save your progress
-4. **Keep the structure** - Edit text content rather than deleting entire sections
-5. **Test your exported file** by opening it in a browser
+1. **Edit gradually** - Make small changes and check the preview
+2. **Use automatic saving** - Your work saves every 30 seconds  
+3. **Keep the structure** - Edit text content rather than deleting entire sections
+4. **Test the email button** - Make sure you can send when finished
+5. **Contact for help** - Email fahd@noodleseed.com with any questions
 
 ---
 
