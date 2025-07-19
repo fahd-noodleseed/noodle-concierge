@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noodle Concierge: AI-Powered Tenant Lifecycle Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            color: #111827;
+            line-height: 1.4;
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 0.1in;
+            font-weight: 400;
+        }
+        
+        @page {
+            size: letter portrait;
+            margin: 0.25in 0.25in 0.25in 0.25in;
+            
+            @top-center {
+                content: element(running-header);
+                margin-top: 0.2in;
+            }
+            
+            @bottom-center {
+                content: element(running-footer);
+                margin-bottom: 0.2in;
+            }
+            
+        }
+        
+        @page :first {
+            @top-center {
+                content: none;
+            }
+        }
+        
+        @media print {
+            body {
+                padding: 0.25in;
+                margin: 0;
+                width: auto;
+                height: auto;
+                overflow: visible;
+            }
+        }
+        
+        /* Color Variables - Enhanced for Accessibility */
+        .text-blue { color: #1678F2; }
+        .text-green { color: #10B981; }
+        .text-orange { color: #F59E0B; }
+        .text-grey { color: #374151; }
+        .bg-blue { background-color: #1d4ed8; }
+        .bg-green { background-color: #059669; }
+        .bg-orange { background-color: #d97706; }
+        .bg-light-green { background-color: #ecfdf5; }
+        .bg-light-blue { background-color: #eff6ff; }
+        .bg-light-orange { background-color: #fff7ed; }
+        
+        /* Header Section */
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #1678F2;
+            padding-bottom: 0.2rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .logo-image {
+            width: 140px;
+            height: auto;
+            margin-bottom: 0.1rem;
+        }
+        
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1678F2;
+            margin-bottom: 0.1rem;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+            color: #374151;
+            margin-bottom: 0.1rem;
+            font-weight: 400;
+            line-height: 1.3;
+        }
+        
+        .hero-tagline {
+            font-size: 1rem;
+            color: #10B981;
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: 0.01em;
+        }
+        
+        /* Executive Layout */
+        .content-grid {
+            display: block;
+            width: 100%;
+        }
+        
+        .row {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            margin-bottom: 0.3rem;
+        }
+        
+        .col-8 {
+            display: table-cell;
+            width: 66.666%;
+            vertical-align: top;
+            padding-right: 0.75rem;
+        }
+        
+        .col-4 {
+            display: table-cell;
+            width: 33.333%;
+            vertical-align: top;
+            padding: 0 0.375rem;
+        }
+        
+        .col-6 {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+            padding: 0 0.375rem;
+        }
+        
+        .col-12 {
+            width: 100%;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Financial Impact Section */
+        .financial-showcase {
+            display: table;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .power-number {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            padding: 0.75rem;
+            background: #10B981;
+            color: white;
+            border-radius: 8px;
+            margin-right: 0.5rem;
+        }
+
+        .impact-scale {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            padding: 0.75rem;
+            background: #1678F2;
+            color: white;
+            border-radius: 8px;
+            margin-left: 0.5rem;
+        }
+
+        .amount {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+            letter-spacing: -0.01em;
+        }
+
+        .improvement {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+            letter-spacing: -0.01em;
+        }
+
+        .descriptor {
+            font-size: 1rem;
+            opacity: 0.9;
+            display: block;
+            margin-top: 0.3rem;
+            line-height: 1.3;
+            font-weight: 400;
+        }
+        
+        /* Card Components */
+        .card {
+            background: white;
+            border-radius: 0 12px 0 12px;
+            padding: 0.3rem 0.3rem 0.3rem 0.5rem;
+            border-left: 3px solid #1678F2;
+            margin-bottom: 0.2rem;
+            height: 100%;
+            text-align: left;
+            line-height: 1.4;
+        }
+        
+        .card li {
+            text-align: left;
+        }
+        
+        .card.financial {
+            border-left-color: #10B981;
+        }
+        
+        .card.technology {
+            border-left-color: #F59E0B;
+        }
+        
+        .card-header {
+            background: #1678F2;
+            color: white;
+            padding: 0.4rem 0.5rem;
+            border-radius: 0 12px 0 12px;
+            margin: -0.4rem -0.4rem 0.5rem -0.6rem;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            line-height: 1.2;
+        }
+        
+        .card-header.financial {
+            background: #10B981;
+        }
+        
+        .card-header.technology {
+            background: #F59E0B;
+        }
+        
+        /* Financial Impact Section */
+        .financial-showcase {
+            display: table;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .power-number {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            padding: 0.75rem;
+            background: #10B981;
+            color: white;
+            border-radius: 8px;
+            margin-right: 0.5rem;
+        }
+        
+        .impact-scale {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            padding: 0.75rem;
+            background: #1678F2;
+            color: white;
+            border-radius: 8px;
+            margin-left: 0.5rem;
+        }
+        
+        .amount {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+            letter-spacing: -0.01em;
+        }
+        
+        .improvement {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+            letter-spacing: -0.01em;
+        }
+        
+        .descriptor {
+            font-size: 1rem;
+            opacity: 0.9;
+            display: block;
+            margin-top: 0.3rem;
+            line-height: 1.3;
+            font-weight: 400;
+        }
+        
+        /* ROI Table */
+        .roi-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 0 12px 0 12px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .roi-table th {
+            background: #10B981;
+            color: white;
+            padding: 0.4rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        
+        .roi-table td {
+            background: white;
+            padding: 0.4rem;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+        
+        .roi-table tr:nth-child(even) td {
+            background: #f9fafb;
+        }
+        
+        .roi-table .highlight-row {
+            background: #ecfdf5;
+            font-weight: 600;
+        }
+        
+        .amount-highlight {
+            color: #10B981;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        
+        /* Two Column Lists */
+        .two-column {
+            display: table;
+            width: 100%;
+        }
+        
+        .column {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+            padding-right: 0.5rem;
+        }
+        
+        .column:last-child {
+            padding-right: 0;
+            padding-left: 0.5rem;
+        }
+        
+        .column h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .column ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .column li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.2rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+        
+        .column li::before {
+            content: "•";
+            color: #10B981;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            font-size: 1rem;
+        }
+        
+        /* Implementation Scenarios */
+        .scenario {
+            background: #f3f4f6;
+            border-radius: 0 12px 0 12px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .scenario h4 {
+            color: #1678F2;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+        }
+        
+        .scenario p {
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .scenario-value {
+            color: #10B981;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        
+        /* Timeline */
+        .timeline-item {
+            display: table;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 165, 0, 0.1);
+            border-radius: 0 12px 0 12px;
+        }
+        
+        .timeline-phase {
+            display: table-cell;
+            width: 80px;
+            font-weight: 700;
+            color: #F59E0B;
+            font-size: 0.8rem;
+            vertical-align: middle;
+        }
+        
+        .timeline-action {
+            display: table-cell;
+            font-weight: 500;
+            font-size: 0.8rem;
+            vertical-align: middle;
+        }
+        
+        /* Success Metrics */
+        .success-metrics {
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 0 12px 0 12px;
+            padding: 0.75rem;
+            text-align: center;
+            margin-top: 0.75rem;
+        }
+        
+        .success-metrics p {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        /* Call to Action */
+        .cta-section {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 3px solid #10B981;
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            margin: 0.5rem 0;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);
+        }
+        
+        .cta-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1678F2;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cta-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #1f2937;
+            border-top: 2px solid #1678F2;
+            padding-top: 0.4rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f8fafc 0%, #f8fafc 100%);
+            padding: 0.5rem;
+            border-radius: 0 12px 0 12px;
+            margin-top: 0.3rem;
+        }
+        
+        /* Typography Utilities - Enhanced Scale */
+        .text-xs-plus { font-size: 0.7rem; line-height: 1.3; }
+        .text-xs { font-size: 0.75rem; line-height: 1.4; }
+        .text-sm-minus { font-size: 0.8rem; line-height: 1.4; }
+        .text-sm { font-size: 0.85rem; line-height: 1.4; }
+        .text-base { font-size: 0.95rem; line-height: 1.5; }
+        .text-lg { font-size: 1.1rem; line-height: 1.4; }
+        .text-xl { font-size: 1.25rem; line-height: 1.3; }
+        .text-2xl { font-size: 1.5rem; line-height: 1.2; }
+        
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .font-light { font-weight: 300; }
+        
+        /* Letter Spacing Utilities */
+        .tracking-tight { letter-spacing: -0.025em; }
+        .tracking-normal { letter-spacing: 0em; }
+        .tracking-wide { letter-spacing: 0.025em; }
+        
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        
+        /* Running Elements for Headers and Footers */
+        .running-header {
+            position: running(running-header);
+            text-align: center;
+            font-size: 0.9rem;
+            color: #1678F2;
+            font-weight: 600;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .running-footer {
+            position: running(running-footer);
+            text-align: center;
+            font-size: 0.8rem;
+            color: #374151;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Page Break Controls */
+        .page-break {
+            page-break-before: always;
+        }
+        
+        .page-break-avoid {
+            page-break-inside: avoid;
+        }
+        
+        /* Print Optimizations */
+        @media print {
+            .two-column .column {
+                page-break-inside: avoid;
+            }
+            
+            .card {
+                page-break-inside: avoid;
+            }
+            
+            .timeline-item {
+                page-break-inside: avoid;
+            }
+            
+            body {
+                padding: 0.4in;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Running Elements for Page Headers/Footers -->
+    <div class="running-header">
+        Noodle Concierge for Property Management Companies: AI-Powered Tenant Lifecycle Management
+    </div>
+    
+    <div class="running-footer">
+        Noodle Concierge
+    </div>
+    
+    <!-- Header -->
+    <div class="header" style="margin-bottom: 0.3rem;">
+        <img src="rectangle_logo_and_name.png" alt="Noodle Seed" class="logo-image">
+        <h1 class="hero-title">Noodle Concierge</h1>
+        <p class="hero-subtitle">AI-Powered Software that Contacts, Negotiates, and Retains Tenants For You</p>
+        <p class="hero-tagline" style="color: #10B981; font-weight: 600;">$0 Upfront Cost – Pay Only for Saved Renewals</p>
+    </div>
+    
+    <!-- Problem Section -->
+    <div class="col-12">
+        <div class="card" style="border-left-color: #ef4444;">
+            <div class="card-header" style="background: #ef4444;">THE PROBLEM</div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #374151; margin-bottom: 0.25rem; text-align: center;">Half of All US Apartment Renters Leave Every Year</h3>
+            
+            <div style="display: table; width: 100%; margin-bottom: 0.2rem;">
+                <div style="display: table-cell; width: 50%; text-align: center; padding: 0.2rem;">
+                    <div style="background: #ef4444; color: white; padding: 0.3rem; border-radius: 6px;">
+                        <div style="font-size: 1.1rem; font-weight: 700;">54%</div>
+                        <div style="font-size: 0.7rem; opacity: 0.9;">National Renewal Rate</div>
+                    </div>
+                </div>
+                <div style="display: table-cell; width: 50%; text-align: center; padding: 0.2rem;">
+                    <div style="background: #ef4444; color: white; padding: 0.3rem; border-radius: 6px;">
+                        <div style="font-size: 1.1rem; font-weight: 700;">$5,500+</div>
+                        <div style="font-size: 0.7rem; opacity: 0.9;">CA Turnover Cost</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(239, 68, 68, 0.1); border-radius: 0 8px 0 8px; padding: 0.25rem; text-align: center;">
+                <div style="font-size: 0.75rem; font-weight: 600; color: #374151;">The Main Reason: Management unresponsiveness or dissatisfaction</div>
+                <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.1rem;">Total turnover costs include: Broker fees $3,000 + Vacancy loss $1,500 + Unit prep $1,000 + Advertising</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Technology Platform -->
+    <div class="col-12">
+        <div class="card technology">
+            <div class="card-header technology">THE SOLUTION</div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #F59E0B; margin-bottom: 0.3rem; text-align: center;">AI-Powered Digital Concierge</h3>
+            
+            <!-- Multi-Channel Communication -->
+            <div style="background: #fff7ed; padding: 0.25rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #F59E0B;">Proactive Multi-Channel: EMAIL • SMS • PHONE • APP</div>
+            </div>
+            
+            <!-- How It Works Timeline -->
+            <div style="background: #f0f9ff; padding: 0.25rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
+                <div style="font-size: 0.75rem; font-weight: 600; color: #1678F2;">Pre-Move-In → Living → Renewal: Complete AI lifecycle management</div>
+            </div>
+            
+            <!-- Key Features -->
+            <div class="two-column">
+                <div class="column">
+                    <h4 style="font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 0.15rem;">Zero Tenant Adoption Required</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="font-size: 0.75rem; position: relative; padding-left: 1rem; margin-bottom: 0.1rem;">
+                            <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
+                            Complete lifecycle management
+                        </li>
+                        <li style="font-size: 0.75rem; position: relative; padding-left: 1rem;">
+                            <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
+                            No app downloads needed
+                        </li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h4 style="font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 0.15rem;">AI-Powered Renewal Focus</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="font-size: 0.75rem; position: relative; padding-left: 1rem; margin-bottom: 0.1rem;">
+                            <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
+                            Automated renewal negotiation
+                        </li>
+                        <li style="font-size: 0.75rem; position: relative; padding-left: 1rem;">
+                            <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
+                            Sentiment analysis & risk scoring
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Partnership Benefits -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">THE VALUE</div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #1678F2; margin-bottom: 0.3rem; text-align: center;">Success-Based Value Creation</h3>
+            
+            <!-- Pricing Comparison -->
+            <div style="background: #f8fafc; padding: 0.25rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem;">
+                <div style="display: table; width: 100%;">
+                    <div style="display: table-cell; width: 50%; text-align: center; padding: 0.15rem;">
+                        <div style="background: #ef4444; color: white; padding: 0.25rem; border-radius: 4px;">
+                            <div style="font-size: 0.9rem; font-weight: 700;">$5,500+</div>
+                            <div style="font-size: 0.65rem; opacity: 0.9;">Turnover Cost</div>
+                        </div>
+                    </div>
+                    <div style="display: table-cell; width: 50%; text-align: center; padding: 0.15rem;">
+                        <div style="background: #10B981; color: white; padding: 0.25rem; border-radius: 4px;">
+                            <div style="font-size: 0.9rem; font-weight: 700;">$720</div>
+                            <div style="font-size: 0.65rem; opacity: 0.9;">Our Fee (2% of full lease)</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 0.15rem;">
+                    <div style="font-size: 0.7rem; font-weight: 600; color: #10B981;">Fee Only for Successful Renewals • No Upfront Investment</div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-6">
+                    <div style="background: #eff6ff; padding: 0.4rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #1678F2; margin-bottom: 0.15rem;">Property Management Companies</div>
+                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                            <li style="margin-bottom: 0.1rem; font-size: 0.7rem;">• Zero investment required</li>
+                            <li style="font-size: 0.7rem;">• Success-based fees only</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div style="background: #ecfdf5; padding: 0.4rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #10B981; margin-bottom: 0.15rem;">Property Owners</div>
+                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                            <li style="margin-bottom: 0.1rem; font-size: 0.7rem;">• Massive savings vs turnover costs</li>
+                            <li style="font-size: 0.7rem;">• Performance-based pricing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Next Steps Section -->
+    <div class="col-12">
+        <div class="card" style="border-left-color: #10B981;">
+            <div class="card-header" style="background: #10B981;">NEXT STEPS</div>
+            <div style="background: rgba(16, 185, 129, 0.1); border-radius: 0 8px 0 8px; padding: 0.25rem; text-align: center;">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #10B981;">Ready to reduce turnover costs? Schedule your portfolio analysis today</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>Fahd Rafi</strong>, Founder, TheNoodleSeed Corporation • noodleseed.com • fahd@noodleseed.com</p>
+        <p style="font-size: 0.7rem; color: #6b7280; margin-top: 0.2rem; font-style: italic;">California market: typical turnover costs 8-12%+ of annual rent due to landlord-paid broker fees. Our fee: 2% of full lease contract value, charged only for successful renewals (no charge for management interventions).</p>
+    </div>
+    
+</body>
+</html>
