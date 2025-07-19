@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noodle Concierge Editor - Client Access</title>
     <script src="https://cdn.tiny.cloud/1/j5zovf5oihbeh6drm8cljk1lcttgms97vr01owd506v7rr70/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -29,7 +30,7 @@
         }
         .header-content {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1fr auto auto;
             grid-template-rows: auto;
             gap: 24px;
             align-items: center;
@@ -53,6 +54,28 @@
             font-size: 14px;
             font-weight: 500;
             letter-spacing: 0.01em;
+        }
+        .utility-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .utility-button {
+            background: transparent;
+            color: #374151;
+            border: 2px solid #d1d5db;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .utility-button:hover {
+            border-color: #1678F2;
+            color: #1678F2;
+            background: rgba(22, 120, 242, 0.05);
         }
         .form-section-complete {
             display: flex;
@@ -170,6 +193,14 @@
                     <h1 class="main-title">Noodle Concierge Document Editor</h1>
                     <p class="tagline">Quick Document Editing</p>
                 </div>
+                <div class="utility-buttons">
+                    <button type="button" class="utility-button" onclick="revertToOriginal()">
+                        Revert to Original
+                    </button>
+                    <button type="button" class="utility-button" onclick="downloadPDF()">
+                        Download PDF
+                    </button>
+                </div>
                 <div class="form-section-complete">
                     <div class="field-container">
                         <label class="field-label">Your Name</label>
@@ -207,6 +238,7 @@
         // Draft management functions
         const DRAFT_KEY = 'noodle-concierge-draft';
         let autoSaveTimeout;
+        let originalContent = '';
         
         function saveDraft() {
             try {
@@ -447,9 +479,8 @@
             setup: function (editor) {
                 // Pre-load your document content
                 editor.on('init', function () {
-                    // Try to restore draft first, otherwise load default content
-                    const draftContent = restoreDraftIfExists();
-                    const contentToLoad = draftContent || `
+                    // Define original content
+                    originalContent = `
                         <div class="header" style="margin-bottom: 0.3rem;">
                             <img src="rectangle_logo_and_name.png" alt="Noodle Seed" class="logo-image">
                             <h1 class="hero-title">Noodle Concierge</h1>
@@ -590,6 +621,10 @@
                             <p style="font-size: 0.7rem; color: #6b7280; margin-top: 0.2rem; font-style: italic;">California market: typical turnover costs 8-12%+ of annual rent due to landlord-paid broker fees. Our fee: 2% of full lease contract value, charged only for successful renewals (no charge for management interventions).</p>
                         </div>
                     `;
+                    
+                    // Try to restore draft first, otherwise load original content
+                    const draftContent = restoreDraftIfExists();
+                    const contentToLoad = draftContent || originalContent;
                     
                     editor.setContent(contentToLoad);
                 });
@@ -784,6 +819,353 @@
             `;
             
             document.body.appendChild(errorModal);
+        }
+        
+        // Utility functions
+        function revertToOriginal() {
+            if (confirm('Are you sure you want to revert to the original document? This will clear all your changes and saved draft.')) {
+                // Clear the editor content and restore original
+                if (tinymce.get('editor')) {
+                    tinymce.get('editor').setContent(originalContent);
+                }
+                
+                // Clear the draft
+                clearDraft();
+                
+                // Clear form fields
+                document.getElementById('clientName').value = '';
+                document.getElementById('clientEmail').value = '';
+                clearFieldValidation('clientName');
+                clearFieldValidation('clientEmail');
+                updateSubmitButton(false);
+                
+                // Show success message
+                showSuccessNotification('Document reverted to original');
+            }
+        }
+        
+        // PDF Configuration
+        const pdfConfig = {
+            margin: [0.4, 0.4, 0.4, 0.4],
+            filename: '',
+            image: { 
+                type: 'jpeg', 
+                quality: 0.95
+            },
+            html2canvas: {
+                scale: 2.5,
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: '#ffffff',
+                letterRendering: true,
+                logging: false,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: 1200,
+                windowHeight: 1600,
+                onclone: function(clonedDoc) {
+                    return optimizeClonedDocument(clonedDoc);
+                }
+            },
+            jsPDF: {
+                unit: 'in',
+                format: 'letter',
+                orientation: 'portrait',
+                compress: true,
+                precision: 2
+            },
+            pagebreak: {
+                mode: ['avoid-all', 'css'],
+                before: '.page-break-before',
+                after: '.page-break-after'
+            }
+        };
+
+        // Font Loading Management
+        async function ensureFontsLoaded() {
+            try {
+                const fontFaces = [
+                    new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2)', {
+                        weight: '400',
+                        style: 'normal'
+                    }),
+                    new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2)', {
+                        weight: '600',
+                        style: 'normal'
+                    }),
+                    new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLBz5Z1xlFQ.woff2)', {
+                        weight: '700',
+                        style: 'normal'
+                    })
+                ];
+                
+                const fontPromises = fontFaces.map(async (font) => {
+                    await font.load();
+                    document.fonts.add(font);
+                });
+                
+                await Promise.all(fontPromises);
+                await document.fonts.ready;
+                await new Promise(resolve => setTimeout(resolve, 500));
+            } catch (error) {
+                console.warn('Font loading failed, continuing with system fonts:', error);
+            }
+        }
+
+        // Document Optimization Functions
+        function createPrintableDocument() {
+            const content = tinymce.get('editor').getContent();
+            
+            const printContainer = document.createElement('div');
+            printContainer.id = 'pdf-print-container';
+            printContainer.innerHTML = content;
+            printContainer.className = 'pdf-optimized-content';
+            
+            printContainer.style.cssText = `
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+                width: 8.5in;
+                background: white;
+                font-family: 'Poppins', sans-serif;
+                color: #111827;
+                line-height: 1.4;
+                padding: 0.5in;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                text-rendering: optimizeLegibility;
+                color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            `;
+            
+            document.body.appendChild(printContainer);
+            return printContainer;
+        }
+
+        function optimizeClonedDocument(clonedDoc) {
+            // Remove contenteditable attributes
+            clonedDoc.querySelectorAll('[contenteditable]').forEach(el => {
+                el.removeAttribute('contenteditable');
+            });
+            
+            // Fix layout issues
+            clonedDoc.querySelectorAll('*').forEach(el => {
+                const computedStyle = window.getComputedStyle(el);
+                if (computedStyle.position === 'fixed' || computedStyle.position === 'sticky') {
+                    el.style.position = 'static';
+                }
+                
+                // Force consistent colors
+                if (el.classList.contains('text-blue')) {
+                    el.style.color = '#1678F2';
+                }
+                if (el.classList.contains('text-green')) {
+                    el.style.color = '#10B981';
+                }
+                if (el.classList.contains('text-orange')) {
+                    el.style.color = '#F59E0B';
+                }
+            });
+            
+            clonedDoc.body.style.fontFamily = "'Poppins', sans-serif";
+            return clonedDoc;
+        }
+
+        async function waitForImages(container) {
+            const images = container.querySelectorAll('img');
+            const imagePromises = Array.from(images).map(img => {
+                if (img.complete) return Promise.resolve();
+                
+                return new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = () => {
+                        img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+';
+                        resolve();
+                    };
+                    
+                    setTimeout(() => {
+                        img.onerror = null;
+                        img.onload = null;
+                        resolve();
+                    }, 5000);
+                });
+            });
+            
+            await Promise.all(imagePromises);
+        }
+
+        // PDF Generation Function
+        async function downloadPDF() {
+            let printContainer = null;
+            try {
+                showPDFLoadingIndicator();
+                updatePDFProgress('Loading fonts...');
+                
+                await ensureFontsLoaded();
+                
+                updatePDFProgress('Preparing document...');
+                printContainer = createPrintableDocument();
+                
+                updatePDFProgress('Loading images...');
+                await waitForImages(printContainer);
+                
+                updatePDFProgress('Generating PDF...');
+                
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `noodle-concierge-document-${timestamp}.pdf`;
+                
+                const finalConfig = {
+                    ...pdfConfig,
+                    filename: filename
+                };
+                
+                await html2pdf()
+                    .from(printContainer)
+                    .set(finalConfig)
+                    .save();
+                
+                showPDFSuccessNotification('PDF downloaded successfully');
+                
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+                handlePDFError(error);
+            } finally {
+                if (printContainer && printContainer.parentNode) {
+                    printContainer.parentNode.removeChild(printContainer);
+                }
+                hidePDFLoadingIndicator();
+            }
+        }
+
+        // Loading Indicator Functions
+        function showPDFLoadingIndicator() {
+            const loader = document.createElement('div');
+            loader.id = 'pdf-loader';
+            loader.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                            background: rgba(0,0,0,0.8); z-index: 10000; 
+                            display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 30px; border-radius: 12px; 
+                                text-align: center; max-width: 400px;">
+                        <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; 
+                                    border-top: 4px solid #1678F2; border-radius: 50%; 
+                                    animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                        <h3 style="color: #1678F2; margin-bottom: 10px;">Generating PDF</h3>
+                        <p style="color: #666; margin: 0;">This may take a few moments...</p>
+                        <div id="pdf-progress" style="margin-top: 15px; font-size: 14px; color: #888;">
+                            Preparing document...
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(loader);
+        }
+
+        function updatePDFProgress(message) {
+            const progressElement = document.getElementById('pdf-progress');
+            if (progressElement) {
+                progressElement.textContent = message;
+            }
+        }
+
+        function hidePDFLoadingIndicator() {
+            const loader = document.getElementById('pdf-loader');
+            if (loader && loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+            }
+        }
+
+        // Error Handling
+        function handlePDFError(error) {
+            if (error.message.includes('canvas')) {
+                showPDFErrorNotification('PDF generation failed due to content complexity. Please try refreshing the page.');
+            } else if (error.message.includes('memory')) {
+                showPDFErrorNotification('PDF generation failed due to document size. Try reducing content.');
+            } else {
+                showPDFErrorNotification('PDF generation failed. Please try again or contact support.');
+            }
+        }
+
+        function showPDFSuccessNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: #10B981; color: white; padding: 12px 20px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 4000);
+        }
+
+        function showPDFErrorNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: #ef4444; color: white; padding: 12px 20px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 6000);
+        }
+        
+        function showSuccessNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: #10B981; color: white; padding: 12px 20px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+        
+        function showErrorNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: #ef4444; color: white; padding: 12px 20px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
         }
     </script>
 </body>
