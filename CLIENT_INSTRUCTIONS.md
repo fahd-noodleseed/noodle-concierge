@@ -1,17 +1,17 @@
-# 📝 Noodle Concierge Document Editor - Client Instructions
+# Noodle Concierge Document Editor - Client Instructions
 
-## 🚀 Getting Started
+## Getting Started
 
 Your document is ready for editing! Here's how to access and use the editor:
 
 ### **Access Your Editor**
 1. Open the provided link in your web browser (Chrome, Safari, or Edge work best)
-2. You'll see the **Noodle Concierge Document Editor** page
-3. Your document is already loaded with all formatting preserved
+2. You'll see the **Noodle Concierge Document Editor** page with a compact control panel at the top
+3. Your document is already loaded with all formatting preserved in the main editing area
 
 ---
 
-## ✏️ How to Edit
+## How to Edit
 
 ### **Making Changes**
 - **Click anywhere in the document** to start editing text
@@ -27,16 +27,16 @@ Your document is ready for editing! Here's how to access and use the editor:
 - **Undo/Redo**: Fix mistakes easily
 
 ### **Formatting Options Available**
-- ✅ Change text content
-- ✅ Modify colors (from predefined palette)
-- ✅ Adjust fonts and sizes
-- ✅ Edit tables and statistics
-- ✅ Update pricing information
-- ✅ Modify contact details
+- Change text content
+- Modify colors (from predefined palette)
+- Adjust fonts and sizes
+- Edit tables and statistics
+- Update pricing information
+- Modify contact details
 
 ---
 
-## 💾 Saving Your Work
+## Saving Your Work
 
 ### **Automatic Saving**
 - Your changes are **automatically saved** every 30 seconds
@@ -46,35 +46,35 @@ Your document is ready for editing! Here's how to access and use the editor:
 ### **Sending Your Document**
 When you're finished editing:
 
-1. **Click "📧 Send Edited Document to Fahd"** button at the bottom
+1. **Click "Send Edited Document to Fahd"** button in the control panel at the top
 2. Your email app will open with a **pre-filled message**
 3. Just click **"Send"** in your email app - everything is ready!
 4. If email doesn't open automatically, you'll see contact information to email manually
 
 ---
 
-## 📋 What You Can Edit
+## What You Can Edit
 
-### **✅ Safe to Edit:**
+### **Safe to Edit:**
 - All text content (titles, descriptions, contact info)
 - Pricing numbers and statistics
 - Company information
 - Contact details
 - Benefits and features lists
 
-### **⚠️ Be Careful With:**
+### **Be Careful With:**
 - Colored boxes and headers (edit text, but don't delete the containers)
 - Table structures (edit content, but keep table layout)
 - Logo placeholders
 
-### **❌ Don't Delete:**
+### **Don't Delete:**
 - Entire sections (Problem, Solution, Value, Next Steps)
 - Colored header bars
 - The overall document structure
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### **Common Issues:**
 
@@ -97,7 +97,7 @@ When you're finished editing:
 
 ---
 
-## 📞 Need Help?
+## Need Help?
 
 If you have any questions or issues:
 - **Contact**: fahd@noodleseed.com
@@ -106,7 +106,7 @@ If you have any questions or issues:
 
 ---
 
-## 🎯 Quick Tips for Best Results
+## Quick Tips for Best Results
 
 1. **Edit gradually** - Make small changes and check the preview
 2. **Use automatic saving** - Your work saves every 30 seconds  
@@ -116,4 +116,4 @@ If you have any questions or issues:
 
 ---
 
-**Ready to start editing? Open your editor and make this document perfect for your needs! 🚀**
+**Ready to start editing? Open your editor and make this document perfect for your needs!**
