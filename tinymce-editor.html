@@ -236,6 +236,7 @@
         const DRAFT_KEY = 'noodle-concierge-draft';
         let autoSaveTimeout;
         let originalContent = '';
+        let contentLoadingPromise = null;
         
         function saveDraft() {
             try {
@@ -323,6 +324,93 @@
                 return draft.content;
             }
             return null;
+        }
+        
+        // Dynamic content loading functions
+        async function loadContentFromSource() {
+            try {
+                const response = await fetch('./noodle_concierge_for_PMs.html');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const html = await response.text();
+                
+                // Parse HTML and extract body content
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Extract content between running elements and body
+                const bodyContent = extractMainContent(doc);
+                return bodyContent;
+            } catch (error) {
+                console.error('Failed to load source content:', error);
+                // Fallback to a basic structure if loading fails
+                return getFallbackContent();
+            }
+        }
+        
+        function extractMainContent(doc) {
+            // Find the main content area by looking for the sections we want
+            const body = doc.body;
+            if (!body) {
+                throw new Error('No body found in source document');
+            }
+            
+            // Create a container for the extracted content
+            const contentContainer = document.createElement('div');
+            
+            // Extract header section
+            const header = body.querySelector('.header');
+            if (header) {
+                contentContainer.appendChild(header.cloneNode(true));
+            }
+            
+            // Extract all the main content sections (Problem, Solution, Value, Next Steps)
+            const mainSections = body.querySelectorAll('.col-12');
+            mainSections.forEach(section => {
+                contentContainer.appendChild(section.cloneNode(true));
+            });
+            
+            // Extract footer
+            const footer = body.querySelector('.footer');
+            if (footer) {
+                contentContainer.appendChild(footer.cloneNode(true));
+            }
+            
+            return contentContainer.innerHTML;
+        }
+        
+        function getFallbackContent() {
+            return `
+                <div class="header" style="margin-bottom: 0.3rem;">
+                    <img src="rectangle_logo_and_name.png" alt="Noodle Seed" class="logo-image">
+                    <h1 class="hero-title">Noodle Concierge</h1>
+                    <p class="hero-subtitle">AI-Powered Software that Contacts, Negotiates, and Retains Tenants For You</p>
+                    <p class="hero-tagline" style="color: #10B981; font-weight: 600;">$0 Upfront Cost – Pay Only for Saved Renewals</p>
+                </div>
+                
+                <div class="col-12">
+                    <div class="card" style="border-left-color: #ef4444;">
+                        <div class="card-header" style="background: #ef4444;">CONTENT LOADING ERROR</div>
+                        <p style="text-align: center; padding: 1rem; color: #374151;">
+                            Unable to load content from source file. Please refresh the page or contact support.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <p><strong>Fahd Rafi</strong>, Founder, TheNoodleSeed Corporation • noodleseed.com • fahd@noodleseed.com</p>
+                </div>
+            `;
+        }
+        
+        // Initialize content loading
+        function initializeContentLoading() {
+            if (!contentLoadingPromise) {
+                contentLoadingPromise = loadContentFromSource();
+            }
+            return contentLoadingPromise;
         }
         
         // Form validation functions
@@ -474,156 +562,32 @@
             
             // Setup function to load content and configure
             setup: function (editor) {
-                // Pre-load your document content
-                editor.on('init', function () {
-                    // Define original content
-                    originalContent = `
-                        <div class="header" style="margin-bottom: 0.3rem;">
-                            <img src="rectangle_logo_and_name.png" alt="Noodle Seed" class="logo-image">
-                            <h1 class="hero-title">Noodle Concierge</h1>
-                            <p class="hero-subtitle">AI-Powered Software that Contacts, Negotiates, and Retains Tenants For You</p>
-                            <p class="hero-tagline" style="color: #10B981; font-weight: 600;">$0 Upfront Cost – Pay Only for Saved Renewals</p>
-                        </div>
+                // Pre-load your document content dynamically
+                editor.on('init', async function () {
+                    try {
+                        // Show loading state
+                        editor.setContent('<div style="text-align: center; padding: 2rem; color: #666;">Loading content...</div>');
                         
-                        <div class="col-12">
-                            <div class="card" style="border-left-color: #ef4444;">
-                                <div class="card-header" style="background: #ef4444;">THE PROBLEM</div>
-                                <h3 style="font-size: 1rem; font-weight: 700; color: #374151; margin-bottom: 0.25rem; text-align: center;">Half of All US Apartment Renters Leave Every Year</h3>
-                                
-                                <div style="display: table; width: 100%; margin-bottom: 0.2rem;">
-                                    <div style="display: table-cell; width: 50%; text-align: center; padding: 0.2rem;">
-                                        <div style="background: #ef4444; color: white; padding: 0.3rem; border-radius: 6px;">
-                                            <div style="font-size: 1.1rem; font-weight: 700;">54%</div>
-                                            <div style="font-size: 0.7rem; opacity: 0.9;">National Renewal Rate</div>
-                                        </div>
-                                    </div>
-                                    <div style="display: table-cell; width: 50%; text-align: center; padding: 0.2rem;">
-                                        <div style="background: #ef4444; color: white; padding: 0.3rem; border-radius: 6px;">
-                                            <div style="font-size: 1.1rem; font-weight: 700;">$5,500+</div>
-                                            <div style="font-size: 0.7rem; opacity: 0.9;">CA Turnover Cost</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div style="background: rgba(239, 68, 68, 0.1); border-radius: 0 8px 0 8px; padding: 0.25rem; text-align: center;">
-                                    <div style="font-size: 0.75rem; font-weight: 600; color: #374151;">The Main Reason: Management unresponsiveness or dissatisfaction</div>
-                                    <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.1rem;">Total turnover costs include: Broker fees $3,000 + Vacancy loss $1,500 + Unit prep $1,000 + Advertising</div>
-                                </div>
-                            </div>
-                        </div>
+                        // Load content dynamically from source file
+                        originalContent = await initializeContentLoading();
                         
-                        <div class="col-12">
-                            <div class="card technology">
-                                <div class="card-header technology">THE SOLUTION</div>
-                                <h3 style="font-size: 1.1rem; font-weight: 700; color: #F59E0B; margin-bottom: 0.3rem; text-align: center;">AI-Powered Digital Concierge</h3>
-                                
-                                <div style="background: #fff7ed; padding: 0.25rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
-                                    <div style="font-size: 0.8rem; font-weight: 600; color: #F59E0B;">Proactive Multi-Channel: EMAIL • SMS • PHONE • APP</div>
-                                </div>
-                                
-                                <div style="background: #f0f9ff; padding: 0.25rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
-                                    <div style="font-size: 0.75rem; font-weight: 600; color: #1678F2;">Pre-Move-In → Living → Renewal: Complete AI lifecycle management</div>
-                                </div>
-                                
-                                <div class="two-column">
-                                    <div class="column">
-                                        <h4 style="font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 0.15rem;">Zero Tenant Adoption Required</h4>
-                                        <ul style="list-style: none; padding: 0; margin: 0;">
-                                            <li style="font-size: 0.75rem; position: relative; padding-left: 1rem; margin-bottom: 0.1rem;">
-                                                <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
-                                                Complete lifecycle management
-                                            </li>
-                                            <li style="font-size: 0.75rem; position: relative; padding-left: 1rem;">
-                                                <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
-                                                No app downloads needed
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="column">
-                                        <h4 style="font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 0.15rem;">AI-Powered Renewal Focus</h4>
-                                        <ul style="list-style: none; padding: 0; margin: 0;">
-                                            <li style="font-size: 0.75rem; position: relative; padding-left: 1rem; margin-bottom: 0.1rem;">
-                                                <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
-                                                Automated renewal negotiation
-                                            </li>
-                                            <li style="font-size: 0.75rem; position: relative; padding-left: 1rem;">
-                                                <span style="position: absolute; left: 0; color: #F59E0B;">•</span>
-                                                Sentiment analysis & risk scoring
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        // Try to restore draft first, otherwise load original content
+                        const draftContent = restoreDraftIfExists();
+                        const contentToLoad = draftContent || originalContent;
                         
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">THE VALUE</div>
-                                <h3 style="font-size: 1.1rem; font-weight: 700; color: #1678F2; margin-bottom: 0.3rem; text-align: center;">Success-Based Value Creation</h3>
-                                
-                                <div style="background: #f8fafc; padding: 0.25rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem;">
-                                    <div style="display: table; width: 100%;">
-                                        <div style="display: table-cell; width: 50%; text-align: center; padding: 0.15rem;">
-                                            <div style="background: #ef4444; color: white; padding: 0.25rem; border-radius: 4px;">
-                                                <div style="font-size: 0.9rem; font-weight: 700;">$5,500+</div>
-                                                <div style="font-size: 0.65rem; opacity: 0.9;">Turnover Cost</div>
-                                            </div>
-                                        </div>
-                                        <div style="display: table-cell; width: 50%; text-align: center; padding: 0.15rem;">
-                                            <div style="background: #10B981; color: white; padding: 0.25rem; border-radius: 4px;">
-                                                <div style="font-size: 0.9rem; font-weight: 700;">$720</div>
-                                                <div style="font-size: 0.65rem; opacity: 0.9;">Our Fee (2% of full lease)</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style="text-align: center; margin-top: 0.15rem;">
-                                        <div style="font-size: 0.7rem; font-weight: 600; color: #10B981;">Fee Only for Successful Renewals • No Upfront Investment</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-6">
-                                        <div style="background: #eff6ff; padding: 0.4rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
-                                            <div style="font-size: 0.9rem; font-weight: 700; color: #1678F2; margin-bottom: 0.15rem;">Property Management Companies</div>
-                                            <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
-                                                <li style="margin-bottom: 0.1rem; font-size: 0.7rem;">• Zero investment required</li>
-                                                <li style="font-size: 0.7rem;">• Success-based fees only</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div style="background: #ecfdf5; padding: 0.4rem; border-radius: 0 8px 0 8px; margin-bottom: 0.2rem; text-align: center;">
-                                            <div style="font-size: 0.9rem; font-weight: 700; color: #10B981; margin-bottom: 0.15rem;">Property Owners</div>
-                                            <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
-                                                <li style="margin-bottom: 0.1rem; font-size: 0.7rem;">• Massive savings vs turnover costs</li>
-                                                <li style="font-size: 0.7rem;">• Performance-based pricing</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        editor.setContent(contentToLoad);
                         
-                        <div class="col-12">
-                            <div class="card" style="border-left-color: #10B981;">
-                                <div class="card-header" style="background: #10B981;">NEXT STEPS</div>
-                                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 0 8px 0 8px; padding: 0.25rem; text-align: center;">
-                                    <div style="font-size: 0.8rem; font-weight: 600; color: #10B981;">Ready to reduce turnover costs? Schedule your portfolio analysis today</div>
-                                </div>
-                            </div>
-                        </div>
+                        // Update draft status
+                        updateDraftStatus('Content loaded from source file');
                         
-                        <div class="footer">
-                            <p><strong>Fahd Rafi</strong>, Founder, TheNoodleSeed Corporation • noodleseed.com • fahd@noodleseed.com</p>
-                            <p style="font-size: 0.7rem; color: #6b7280; margin-top: 0.2rem; font-style: italic;">California market: typical turnover costs 8-12%+ of annual rent due to landlord-paid broker fees. Our fee: 2% of full lease contract value, charged only for successful renewals (no charge for management interventions).</p>
-                        </div>
-                    `;
-                    
-                    // Try to restore draft first, otherwise load original content
-                    const draftContent = restoreDraftIfExists();
-                    const contentToLoad = draftContent || originalContent;
-                    
-                    editor.setContent(contentToLoad);
+                    } catch (error) {
+                        console.error('Failed to load content:', error);
+                        // Fallback to error content
+                        const fallbackContent = getFallbackContent();
+                        originalContent = fallbackContent;
+                        editor.setContent(fallbackContent);
+                        updateDraftStatus('Error loading content - using fallback');
+                    }
                 });
                 
                 // Auto-save on content changes
@@ -819,25 +783,41 @@
         }
         
         // Utility functions
-        function revertToOriginal() {
+        async function revertToOriginal() {
             if (confirm('Are you sure you want to revert to the original document? This will clear all your changes and saved draft.')) {
-                // Clear the editor content and restore original
-                if (tinymce.get('editor')) {
-                    tinymce.get('editor').setContent(originalContent);
+                try {
+                    // Show loading state
+                    if (tinymce.get('editor')) {
+                        tinymce.get('editor').setContent('<div style="text-align: center; padding: 2rem; color: #666;">Reloading original content...</div>');
+                    }
+                    
+                    // Fetch fresh content from source file
+                    contentLoadingPromise = null; // Reset the promise to force fresh load
+                    originalContent = await initializeContentLoading();
+                    
+                    // Clear the editor content and restore original
+                    if (tinymce.get('editor')) {
+                        tinymce.get('editor').setContent(originalContent);
+                    }
+                    
+                    // Clear the draft
+                    clearDraft();
+                    
+                    // Clear form fields
+                    document.getElementById('clientName').value = '';
+                    document.getElementById('clientEmail').value = '';
+                    clearFieldValidation('clientName');
+                    clearFieldValidation('clientEmail');
+                    updateSubmitButton(false);
+                    
+                    // Show success message
+                    showSuccessNotification('Document reverted to latest original');
+                    updateDraftStatus('Reverted to latest source content');
+                    
+                } catch (error) {
+                    console.error('Failed to revert to original:', error);
+                    showErrorNotification('Failed to load original content. Please refresh the page.');
                 }
-                
-                // Clear the draft
-                clearDraft();
-                
-                // Clear form fields
-                document.getElementById('clientName').value = '';
-                document.getElementById('clientEmail').value = '';
-                clearFieldValidation('clientName');
-                clearFieldValidation('clientEmail');
-                updateSubmitButton(false);
-                
-                // Show success message
-                showSuccessNotification('Document reverted to original');
             }
         }
         
